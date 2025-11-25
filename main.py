@@ -180,24 +180,24 @@ class JuegoConnect4:
                 self.cambiar_turno()
 
 
-# --- Punto de Entrada Principal ---
-if __name__ == "__main__":
+# # --- Punto de Entrada Principal ---
+# if __name__ == "__main__":
     
-    # --- Configuración para la prueba ---
-    # Para cumplir con la Fase de Resultados, necesitas 3 tipos de partidas:
+#     # --- Configuración para la prueba ---
+#     # Para cumplir con la Fase de Resultados, necesitas 3 tipos de partidas:
     
-    # 1. Agente DP vs. Jugador Aleatorio 
-    # j1 = Jugador(JUGADOR_IA, "X")
-    # j2 = Jugador(JUGADOR_RANDOM, "O")
+#     # 1. Agente DP vs. Jugador Aleatorio 
+#     # j1 = Jugador(JUGADOR_IA, "X")
+#     # j2 = Jugador(JUGADOR_RANDOM, "O")
 
-    # 2. Agente DP vs. Jugador Humano 
-    j1 = Jugador(JUGADOR_IA, "X")
-    j2 = Jugador(JUGADOR_HUMANO, "O")
+#     # 2. Agente DP vs. Jugador Humano 
+#     j1 = Jugador(JUGADOR_IA, "X")
+#     j2 = Jugador(JUGADOR_HUMANO, "O")
 
-    # 3. Jugador Humano vs. Jugador Aleatorio (para tu propia prueba)
-    # j1 = Jugador(JUGADOR_HUMANO, "X")
-    # j2 = Jugador(JUGADOR_RANDOM, "O")
+#     # 3. Jugador Humano vs. Jugador Aleatorio (para tu propia prueba)
+#     # j1 = Jugador(JUGADOR_HUMANO, "X")
+#     # j2 = Jugador(JUGADOR_RANDOM, "O")
     
-    # Iniciar el juego
-    juego = JuegoConnect4(j1, j2)
-    juego.iniciar_juego()
+#     # Iniciar el juego
+#     juego = JuegoConnect4(j1, j2)
+#     juego.iniciar_juego()
