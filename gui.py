@@ -50,20 +50,20 @@ class Connect4GUI:
         # 3. Bindings (Eventos)
         self.canvas.bind("<Button-1>", self.manejar_clic)
 
+        centrar_ventana(root)
+
         # 4. Dibujar el estado inicial
         self.dibujar_tablero()
+
+        # 5. Si el primer jugador es IA, hacer su jugada
+        if self.turno_actual.tipo_jugador in [JUGADOR_IA, JUGADOR_RANDOM]:
+            self.root.after(500, self.turno_ia)
 
     def dibujar_tablero(self):
         """Dibuja la grilla y las fichas basándose en self.tablero.grid"""
         self.canvas.delete("all") # Limpiar canvas
         
-        # Iterar sobre la matriz (grid) de tu clase Tablero
-        # Nota: Tu grid usa filas 0 abajo, pero Tkinter dibuja 0 arriba.
-        # Hacemos un flip visual o iteramos invertido. Tu método imprimir usa np.flip.
-        # Aquí dibujaremos directo: fila 0 de numpy es fila 0 de tkinter (arriba)
-        # PERO en tu lógica fila 0 suele ser abajo. Ajustemos visualmente:
-        
-        grid_visual = np.flip(self.tablero.grid, axis=0) 
+        grid_visual = np.flip(self.tablero.grid, axis=0) # Voltear para que la fila 0 esté abajo
 
         for r in range(FILAS):
             for c in range(COLUMNAS):
@@ -184,6 +184,7 @@ class MainMenu:
 
         self.frame_principal = tk.Frame(root)
         self.frame_principal.pack(pady=20)
+        centrar_ventana(root, ancho=300, alto=250)
 
         self.label = tk.Label(self.frame_principal, text="Selecciona el tipo de jugadores", font=("Arial", 16))
         self.label.pack(pady=10)
@@ -204,6 +205,28 @@ class MainMenu:
         self.root.destroy()  # Cerrar menú principal
         juego = Connect4GUI(tk.Tk(), j1, j2)
         juego.root.mainloop()
+
+def centrar_ventana(root, ancho=None, alto=None):
+    """Centra la ventana en la pantalla."""
+    # Forzamos la actualización de tareas pendientes para que Tkinter 
+    # calcule bien el tamaño de los widgets si no se pasan dimensiones fijas
+    root.update_idletasks()
+
+    if ancho is None:
+        ancho = root.winfo_width()
+    if alto is None:
+        alto = root.winfo_height()
+
+    # Obtener el ancho y alto de la pantalla del monitor
+    screen_width = root.winfo_screenwidth()
+    screen_height = root.winfo_screenheight()
+
+    # Calcular la posición x, y
+    x = (screen_width // 2) - (ancho // 2)
+    y = (screen_height // 2) - (alto // 2)
+
+    # Establecer la geometría
+    root.geometry(f"{ancho}x{alto}+{x}+{y}")
 
 
 # --- Main Loop ---
