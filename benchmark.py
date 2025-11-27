@@ -1,12 +1,9 @@
 import sys
 import os
 import time
-import matplotlib.pyplot as plt # Opcional: para generar el gráfico automáticamente
+import matplotlib.pyplot as plt 
 from back_end import Tablero, Jugador, JUGADOR_IA, JUGADOR_RANDOM, JUGADOR_HUMANO, VACIO
 
-# --- Utilidad para silenciar los prints del juego original ---
-# Esto es necesario porque tu clase Jugador imprime "IA pensando..." o tableros
-# y para 100 partidas eso ensuciaría mucho la consola.
 class SilenciarSalida:
     def __enter__(self):
         self._original_stdout = sys.stdout
@@ -16,14 +13,12 @@ class SilenciarSalida:
         sys.stdout.close()
         sys.stdout = self._original_stdout
 
-# --- Función para simular una sola partida ---
+#  Función para simular una sola partida 
 def simular_partida(id_partida):
     """
     Ejecuta una partida completa entre IA (X) y Random (O).
     Retorna: "IA", "Random" o "Empate"
     """
-    # Configuración: IA siempre empieza o alternamos? 
-    # Para ser justos, alternaremos quién empieza, aunque la ficha se mantiene.
     # IA = "X", Random = "O"
     
     jugador_ia = Jugador(JUGADOR_IA, "X")
@@ -64,9 +59,9 @@ def simular_partida(id_partida):
         else:
             turno_actual = jugador_ia
 
-# --- Función Principal del Benchmark ---
+# Función Principal del Benchmark 
 def correr_benchmark(cantidad_partidas=100):
-    print(f"--- Iniciando Simulación de {cantidad_partidas} Partidas ---")
+    print(f" Iniciando Simulación de {cantidad_partidas} Partidas ")
     print("Configuración: Agente IA (Minimax) vs Agente Random")
     print("Nota: Esto puede tardar unos minutos dependiendo de la profundidad del Minimax...\n")
 
@@ -100,47 +95,42 @@ def correr_benchmark(cantidad_partidas=100):
         sys.stdout.flush()
 
     tiempo_total = time.time() - tiempo_inicio
-    print(f"\n\n--- Simulación Finalizada en {tiempo_total:.2f} segundos ---")
+    print(f"\n\n Simulación Finalizada en {tiempo_total:.2f} segundos ")
     
     return resultados
 
-# --- Ejecución ---
+#  Ejecución 
 if __name__ == "__main__":
     
     N_PARTIDAS = 100
     datos = correr_benchmark(N_PARTIDAS)
     
-    # --- Reporte de Texto ---
+    #  Reporte de Texto 
     print("\nRESULTADOS FINALES:")
     print(f"Victorias IA:     {datos['IA']} ({datos['IA']/N_PARTIDAS*100}%)")
     print(f"Victorias Random: {datos['Random']} ({datos['Random']/N_PARTIDAS*100}%)")
     print(f"Empates:          {datos['Empate']} ({datos['Empate']/N_PARTIDAS*100}%)")
     
-    # --- Generación de Gráfico (Para tu presentación) ---
-    try:
-        etiquetas = ['IA (Minimax)', 'Aleatorio', 'Empates']
-        valores = [datos['IA'], datos['Random'], datos['Empate']]
-        colores = ['#4CAF50', '#F44336', '#FFC107'] # Verde, Rojo, Amarillo
+    #  Generación de Gráfico 
+    etiquetas = ['IA (Minimax)', 'Aleatorio', 'Empates']
+    valores = [datos['IA'], datos['Random'], datos['Empate']]
+    colores = ['#4CAF50', '#F44336', '#FFC107'] # Verde, Rojo, Amarillo
 
-        plt.figure(figsize=(8, 6))
-        barras = plt.bar(etiquetas, valores, color=colores)
-        
-        # Añadir etiquetas de valor encima de las barras
-        for barra in barras:
-            height = barra.get_height()
-            plt.text(barra.get_x() + barra.get_width()/2., height,
-                     f'{height}',
-                     ha='center', va='bottom')
+    plt.figure(figsize=(8, 6))
+    barras = plt.bar(etiquetas, valores, color=colores)
+    
+    # Añadir etiquetas de valor encima de las barras
+    for barra in barras:
+        height = barra.get_height()
+        plt.text(barra.get_x() + barra.get_width()/2., height,
+                    f'{height}',
+                    ha='center', va='bottom')
 
-        plt.title(f'Rendimiento Agente IA vs Random ({N_PARTIDAS} Partidas)')
-        plt.ylabel('Cantidad de Victorias')
-        plt.ylim(0, N_PARTIDAS + 10)
-        
-        nombre_archivo = "resultados_benchmark.png"
-        plt.savefig(nombre_archivo)
-        print(f"\n[Éxito] Gráfico guardado como '{nombre_archivo}'.")
-        print("Puedes usar esta imagen para tu slide de Resultados.")
-        plt.show()
-        
-    except Exception as e:
-        print(f"\nNo se pudo generar el gráfico (asegúrate de tener matplotlib instalado): {e}")
+    plt.title(f'Rendimiento Agente IA vs Random ({N_PARTIDAS} Partidas)')
+    plt.ylabel('Cantidad de Victorias')
+    plt.ylim(0, N_PARTIDAS + 10)
+    
+    nombre_archivo = "resultados_benchmark.png"
+    plt.savefig(nombre_archivo)
+    print(f"\n[Éxito] Gráfico guardado como '{nombre_archivo}'.")
+    plt.show()
