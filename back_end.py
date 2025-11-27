@@ -2,6 +2,7 @@ import numpy as np
 import random
 import math
 import copy
+import time
 
 FILAS = 6
 COLUMNAS = 7
@@ -176,20 +177,17 @@ class Jugador:
         elif self.tipo_jugador == JUGADOR_IA:
             print(f"Agente IA ({self.ficha}) está pensando...")
             
-            # Inicializar memoización para este turno (o mantenerla global si prefieres)
-            self.memo = {} 
-            
-            # Profundidad: 4 es rápido, 6 es fuerte, 7+ puede ser lento en Python
-            profundidad = 4 
-            
+            profundidad = 4
+            inicio = time.time()
             columna_elegida, minimax_score = self.minimax(tablero, profundidad, -math.inf, math.inf, True)
-            
             if columna_elegida is None:
                 # Fallback por si acaso falla
                 print("Fallback: IA no encontró columna, eligiendo aleatoriamente.")
                 columna_elegida = random.choice(tablero.obtener_columnas_validas())
             
-            print(f"IA eligió columna {columna_elegida} con puntaje {minimax_score}")
+            fin = time.time() 
+            print(f"IA ({self.ficha})eligió columna {columna_elegida} con puntaje {minimax_score}")
+            print(f'IA se demoró {(fin-inicio)*1000:.3f} ms en calcular su jugada')
             return columna_elegida
 
 
