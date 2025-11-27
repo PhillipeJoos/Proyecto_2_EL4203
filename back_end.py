@@ -1,35 +1,26 @@
-import numpy as np # Recomendado para manejar el tablero, aunque puedes usar listas de listas
+import numpy as np 
 import random
 import math
 import copy
 
-# --- Constantes del Juego ---
 FILAS = 6
 COLUMNAS = 7
 JUGADOR_HUMANO = "H"
 JUGADOR_IA = "AI"
-JUGADOR_RANDOM = "R" # El "jugador base" que toma decisiones aleatorias 
+JUGADOR_RANDOM = "R" 
 VACIO = " "
 
-# --- Clase Ficha (Requerida ) ---
-# En este diseño simple, la "ficha" puede ser solo un string (como "H" o "AI")
-# Si quisieras, podrías hacerla una clase, pero puede ser innecesario.
-# class Ficha:
-#     def __init__(self, color):
-#         self.color = color
 
-# --- Clase Jugador (Requerida ) ---
 class Jugador:
     """Representa a un jugador (humano o agente)."""
     def __init__(self, tipo_jugador, ficha):
-        self.tipo_jugador = tipo_jugador # "H", "AI", "R"
-        self.ficha = ficha # La marca que usa, ej: "X" u "O"
+        self.tipo_jugador = tipo_jugador 
+        self.ficha = ficha 
 
-    # --- Heurística: Evaluar el estado del tablero ---
     def evaluar_ventana(self, ventana, ficha):
-        """Asigna un puntaje a una ventana de 4 celdas."""
+        """Asigna un puntaje a una ventana de 4 celdas"""
         score = 0
-        oponente = "O" if ficha == "X" else "X" # Asumiendo X vs O
+        oponente = "O" if ficha == "X" else "X" 
 
         if ventana.count(ficha) == 4:
             score += 100
@@ -37,8 +28,6 @@ class Jugador:
             score += 5
         elif ventana.count(ficha) == 2 and ventana.count(VACIO) == 2:
             score += 2
-
-        # Estrategia defensiva: Bloquear al oponente es prioritario
         if ventana.count(oponente) == 3 and ventana.count(VACIO) == 1:
             score -= 4 
 
@@ -49,61 +38,45 @@ class Jugador:
         score = 0
         grid = tablero.grid
         
-        # Preferencia por el centro (Estratégico en Connect 4)
         col_centro = [grid[i][COLUMNAS//2] for i in range(FILAS)]
         cuenta_centro = col_centro.count(ficha)
         score += cuenta_centro * 3
-
-        # Horizontal
         for r in range(FILAS):
             fila_array = [i for i in list(grid[r, :])]
             for c in range(COLUMNAS - 3):
                 ventana = fila_array[c:c+4]
                 score += self.evaluar_ventana(ventana, self.ficha)
-
-        # Vertical
         for c in range(COLUMNAS):
             col_array = [i for i in list(grid[:, c])]
             for r in range(FILAS - 3):
                 ventana = col_array[r:r+4]
                 score += self.evaluar_ventana(ventana, self.ficha)
-
-        # Diagonal Positiva
         for r in range(FILAS - 3):
             for c in range(COLUMNAS - 3):
                 ventana = [grid[r+i][c+i] for i in range(4)]
                 score += self.evaluar_ventana(ventana, self.ficha)
-
-        # Diagonal Negativa
         for r in range(FILAS - 3):
             for c in range(COLUMNAS - 3):
                 ventana = [grid[r+3-i][c+i] for i in range(4)]
                 score += self.evaluar_ventana(ventana, self.ficha)
-
         return score
     
-    # --- Algoritmo Minimax + Alpha-Beta + Memoización ---
     def es_nodo_terminal(self, tablero):
-        # Revisa si alguien ganó o si el tablero está lleno
-        # Nota: Usamos una lógica simplificada de victoria aquí o llamamos a la del tablero
-        # Para optimizar, idealmente la clase Tablero debería tener un check_win global
-        # pero aquí lo inferimos si no hay movimientos validos o detectamos victoria.
+        """ Revisa si alguien ganó o si el tablero está lleno
+        """
         return tablero.detectar_victoria("X", 0, 0) or \
                tablero.detectar_victoria("O", 0, 0) or \
                len(tablero.obtener_columnas_validas()) == 0
 
     def minimax(self, tablero, profundidad, alpha, beta, maximizando):
-        # 1. Generar clave para Memoización (Hash del tablero)
-        # Convertimos el numpy array a tupla para que sea "hasheable"
         estado_hash = (str(tablero.grid), maximizando)
         
         if hasattr(self, 'memo') and estado_hash in self.memo:
             return self.memo[estado_hash]
 
         valid_locations = tablero.obtener_columnas_validas()
-        es_terminal = self.es_nodo_terminal(tablero) # Ojo: detectar_victoria requiere refactor si no se tiene ultima jugada
+        es_terminal = self.es_nodo_terminal(tablero) 
 
-        # 2. Casos Base (Fin del juego o Profundidad 0)
         if profundidad == 0 or es_terminal:
             if es_terminal:
                 if tablero.detectar_victoria(self.ficha, 0, 0): # IA Gana
@@ -196,7 +169,6 @@ class Jugador:
         elif self.tipo_jugador == JUGADOR_RANDOM:
             # Lógica para el jugador aleatorio 
             # (Esta es tu baseline 1)
-            import random
             col = random.choice(tablero.obtener_columnas_validas())
             print(f"Jugador Aleatorio ({self.ficha}) eligió columna {col}")
             return col

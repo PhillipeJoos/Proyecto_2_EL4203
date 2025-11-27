@@ -1,33 +1,31 @@
 import tkinter as tk
 from tkinter import messagebox
 import numpy as np
+from back_end import Tablero, Jugador, FILAS, COLUMNAS, VACIO, JUGADOR_HUMANO, JUGADOR_IA, JUGADOR_RANDOM
 
-# --- Importamos tu lógica ---
-# Asegúrate de que tu archivo original se llame 'connect4_logic.py'
-from main import Tablero, Jugador, FILAS, COLUMNAS, VACIO, JUGADOR_HUMANO, JUGADOR_IA, JUGADOR_RANDOM
-
-# --- Configuración Visual ---
 TAMANO_CELDA = 80
 RADIO = 30
-COLOR_FONDO = "#0055D4"    # Azul clásico de Connect 4
-COLOR_VACIO = "#FFFFFF"    # Blanco
-COLOR_J1 = "#FF3333"       # Rojo
-COLOR_J2 = "#FFFF33"       # Amarillo
+COLOR_FONDO = "#0055D4"
+COLOR_VACIO = "#FFFFFF"
+COLOR_J1 = "#FF3333"
+COLOR_J2 = "#FFFF33" 
 
 class Connect4GUI:
-    def __init__(self, root, jugador1_type=JUGADOR_HUMANO, jugador2_type=JUGADOR_IA):
+    def __init__(
+        self,
+        root: tk.Tk, 
+        jugador1_type: str = JUGADOR_HUMANO, 
+        jugador2_type: str = JUGADOR_IA
+    ):
         self.root = root
         self.root.title("Connect 4 - IA Project")
-
-        # 1. Inicializar la lógica del juego (Backend)
         self.jugador1 = Jugador(jugador1_type, "X")
         self.jugador2 = Jugador(jugador2_type, "O")
 
         self.tablero = Tablero()
-        self.turno_actual = self.jugador1 # Empieza jugador 1
+        self.turno_actual = self.jugador1
         self.game_over = False
 
-        # 2. Elementos de la Interfaz
         self.canvas = tk.Canvas(
             root, 
             width=COLUMNAS * TAMANO_CELDA, 
@@ -36,34 +34,40 @@ class Connect4GUI:
         )
         self.canvas.pack()
 
-        # Label para mostrar mensajes
-        self.info_label = tk.Label(root, text=f"Turn: {self.turno_actual.ficha}", font=("Arial", 14))
+        self.info_label = tk.Label(
+            root,
+            text=f"Turn: {self.turno_actual.ficha}",
+            font=("Arial", 14)
+        )
         self.info_label.pack(pady=10)
-
-        # Botón de reinicio
-        self.btn_reset = tk.Button(root, text="Reiniciar Juego", command=self.reset_game)
+        self.btn_reset = tk.Button(
+            root,
+            text="Reiniciar Juego",
+            command=self.reset_game
+        )
         self.btn_reset.pack(pady=5)
-
-        self.btn_main_menu = tk.Button(root, text="Main Menu", command=self.main_menu)
+        self.btn_main_menu = tk.Button(
+            root,
+            text="Main Menu",
+            command=self.main_menu
+        )
         self.btn_main_menu.pack(pady=5)
-
-        # 3. Bindings (Eventos)
-        self.canvas.bind("<Button-1>", self.manejar_clic)
-
+        self.canvas.bind(
+            "<Button-1>",
+            self.manejar_clic
+        )
         centrar_ventana(root)
 
-        # 4. Dibujar el estado inicial
         self.dibujar_tablero()
 
-        # 5. Si el primer jugador es IA, hacer su jugada
         if self.turno_actual.tipo_jugador in [JUGADOR_IA, JUGADOR_RANDOM]:
             self.root.after(500, self.turno_ia)
 
     def dibujar_tablero(self):
         """Dibuja la grilla y las fichas basándose en self.tablero.grid"""
-        self.canvas.delete("all") # Limpiar canvas
+        self.canvas.delete("all") 
         
-        grid_visual = np.flip(self.tablero.grid, axis=0) # Voltear para que la fila 0 esté abajo
+        grid_visual = np.flip(self.tablero.grid, axis=0) 
 
         for r in range(FILAS):
             for c in range(COLUMNAS):
@@ -72,10 +76,13 @@ class Connect4GUI:
                 x1 = x0 + TAMANO_CELDA
                 y1 = y0 + TAMANO_CELDA
                 
-                # Dibujar recuadro azul
-                self.canvas.create_rectangle(x0, y0, x1, y1, fill=COLOR_FONDO, outline="")
+                self.canvas.create_rectangle(
+                    x0, y0, 
+                    x1, y1, 
+                    fill=COLOR_FONDO, 
+                    outline=""
+                )
 
-                # Determinar color de la ficha
                 valor = grid_visual[r][c]
                 if valor == VACIO:
                     color = COLOR_VACIO
@@ -84,7 +91,6 @@ class Connect4GUI:
                 else:
                     color = COLOR_J2
 
-                # Dibujar circulo
                 self.canvas.create_oval(
                     x0 + (TAMANO_CELDA//2) - RADIO,
                     y0 + (TAMANO_CELDA//2) - RADIO,
@@ -92,18 +98,16 @@ class Connect4GUI:
                     y0 + (TAMANO_CELDA//2) + RADIO,
                     fill=color, outline="black"
                 )
-        self.root.update() # Forzar actualización visual
+        self.root.update() 
 
     def manejar_clic(self, event):
         """Maneja el turno del Humano basado en dónde hizo clic."""
         if self.game_over:
             return
 
-        # Si es turno de la IA, ignoramos clics humanos
         if self.turno_actual.tipo_jugador != JUGADOR_HUMANO:
             return
 
-        # Calcular columna basada en la coordenada X del clic
         col = event.x // TAMANO_CELDA
 
         if 0 <= col < COLUMNAS and self.tablero.es_columna_valida(col):
@@ -114,27 +118,22 @@ class Connect4GUI:
     def ejecutar_jugada(self, col):
         """Inserta ficha, actualiza GUI, verifica victoria y cambia turno."""
         
-        # 1. Insertar en lógica
         fila = self.tablero.insertar_ficha(col, self.turno_actual.ficha)
         
-        # 2. Actualizar visual
         self.dibujar_tablero()
 
-        # 3. Verificar Victoria
         if self.tablero.detectar_victoria(self.turno_actual.ficha, fila, col):
             self.info_label.config(text=f"¡Ganó {self.turno_actual.ficha}!")
             messagebox.showinfo("Fin del juego", f"¡El jugador {self.turno_actual.ficha} ha ganado!")
             self.game_over = True
             return
 
-        # 4. Verificar Empate
         if self.tablero.esta_lleno():
             self.info_label.config(text="¡Empate!")
             messagebox.showinfo("Fin del juego", "¡Es un empate!")
             self.game_over = True
             return
 
-        # 5. Cambiar Turno
         if self.turno_actual == self.jugador1:
             self.turno_actual = self.jugador2
         else:
@@ -142,10 +141,7 @@ class Connect4GUI:
         
         self.info_label.config(text=f"Turno: {self.turno_actual.ficha} ({self.turno_actual.tipo_jugador})")
 
-        # 6. Si el siguiente es IA/Random, ejecutar su turno automáticamente
         if self.turno_actual.tipo_jugador in [JUGADOR_IA, JUGADOR_RANDOM]:
-            # Usamos .after() para dar un pequeño retraso y que se note que "piensa"
-            # y para no congelar la interfaz
             self.root.after(500, self.turno_ia)
 
     def turno_ia(self):
@@ -153,13 +149,11 @@ class Connect4GUI:
         if self.game_over: 
             return
             
-        # Llamamos a tu método elegir_columna (que tendrá el Minimax o Random)
         col = self.turno_actual.elegir_columna(self.tablero)
         
         if col is not None and self.tablero.es_columna_valida(col):
             self.ejecutar_jugada(col)
         else:
-            # Caso de error raro si la IA elige columna llena
             print("Error: IA eligió columna inválida")
 
     def reset_game(self):
@@ -184,52 +178,62 @@ class MainMenu:
 
         self.frame_principal = tk.Frame(root)
         self.frame_principal.pack(pady=20)
-        centrar_ventana(root, ancho=300, alto=250)
-
-        self.label = tk.Label(self.frame_principal, text="Selecciona el tipo de jugadores", font=("Arial", 16))
+        centrar_ventana(
+            root, 
+            ancho=300, 
+            alto=250
+        )
+        self.label = tk.Label(
+            self.frame_principal,
+            text="Selecciona los tipos de jugadores",
+            font=("Arial", 16)
+        )
         self.label.pack(pady=10)
-
-        self.btn_human_vs_ai = tk.Button(self.frame_principal, text="Humano vs Humano", command=lambda: self.iniciar_partida(JUGADOR_HUMANO, JUGADOR_HUMANO))
+        self.btn_human_vs_ai = tk.Button(
+            self.frame_principal,
+            text="Humano vs Humano",
+            command=lambda: self.iniciar_partida(JUGADOR_HUMANO, JUGADOR_HUMANO)
+        )
         self.btn_human_vs_ai.pack(pady=5)
-
-        self.btn_ai_vs_random = tk.Button(self.frame_principal, text="Humano vs IA", command=lambda: self.iniciar_partida(JUGADOR_HUMANO, JUGADOR_IA))
+        self.btn_ai_vs_random = tk.Button(
+            self.frame_principal, 
+            text="Humano vs IA", 
+            command=lambda: self.iniciar_partida(JUGADOR_HUMANO, JUGADOR_IA)
+        )
         self.btn_ai_vs_random.pack(pady=5)
-
-        self.btn_human_vs_random = tk.Button(self.frame_principal, text="IA vs Random", command=lambda: self.iniciar_partida(JUGADOR_IA, JUGADOR_RANDOM))
+        self.btn_human_vs_random = tk.Button(
+            self.frame_principal,
+            text="IA vs Random",
+            command=lambda: self.iniciar_partida(JUGADOR_IA, JUGADOR_RANDOM)
+        )
         self.btn_human_vs_random.pack(pady=5)
-
-        self.btn_ai_vs_human = tk.Button(self.frame_principal, text="IA vs IA", command=lambda: self.iniciar_partida(JUGADOR_IA, JUGADOR_IA))
+        self.btn_ai_vs_human = tk.Button(
+            self.frame_principal, 
+            text="IA vs IA",
+            command=lambda: self.iniciar_partida(JUGADOR_IA, JUGADOR_IA)
+        )
         self.btn_ai_vs_human.pack(pady=5)
 
     def iniciar_partida(self, j1, j2):
-        self.root.destroy()  # Cerrar menú principal
+        self.root.destroy() 
         juego = Connect4GUI(tk.Tk(), j1, j2)
         juego.root.mainloop()
 
 def centrar_ventana(root, ancho=None, alto=None):
     """Centra la ventana en la pantalla."""
-    # Forzamos la actualización de tareas pendientes para que Tkinter 
-    # calcule bien el tamaño de los widgets si no se pasan dimensiones fijas
     root.update_idletasks()
-
     if ancho is None:
         ancho = root.winfo_width()
     if alto is None:
         alto = root.winfo_height()
-
-    # Obtener el ancho y alto de la pantalla del monitor
     screen_width = root.winfo_screenwidth()
     screen_height = root.winfo_screenheight()
-
-    # Calcular la posición x, y
     x = (screen_width // 2) - (ancho // 2)
     y = (screen_height // 2) - (alto // 2)
 
-    # Establecer la geometría
     root.geometry(f"{ancho}x{alto}+{x}+{y}")
 
 
-# --- Main Loop ---
 if __name__ == "__main__":
     root = tk.Tk()
     gui = MainMenu(root)
