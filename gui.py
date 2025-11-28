@@ -18,7 +18,7 @@ class Connect4GUI:
         jugador2_type: str = JUGADOR_IA
     ):
         self.root = root
-        self.root.title("Connect 4 - IA Project")
+        self.root.title("Connect 4 - Proyecto 2")
         self.root.config(bg="black")
 
         # 1. Inicializar la lógica
@@ -189,7 +189,7 @@ class MainMenu:
         self.frame_principal.pack(pady=20)
         centrar_ventana(
             root, 
-            ancho=300, 
+            ancho=350, 
             alto=250
         )
         self.label = tk.Label(
